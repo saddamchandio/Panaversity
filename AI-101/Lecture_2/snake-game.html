@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Snake Game</title>
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #0a0a0f;
+    color: #e0e0e0;
+    font-family: 'Courier New', monospace;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    overflow: hidden;
+    touch-action: none;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+
+  #hud {
+    display: flex;
+    gap: 2rem;
+    font-size: 1rem;
+    letter-spacing: 0.1em;
+    margin-bottom: 0.5rem;
+    z-index: 10;
+  }
+  #hud span { color: #888; }
+  #hud .val { color: #0ff; font-weight: bold; }
+  #hud .hi { color: #ff0; }
+
+  canvas {
+    border: 2px solid #1a1a2e;
+    border-radius: 4px;
+    box-shadow: 0 0 30px rgba(0,255,255,0.08);
+    image-rendering: pixelated;
+  }
+
+  #overlay {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0,0,0,0.82);
+    z-index: 100;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s;
+  }
+  #overlay.show { opacity: 1; pointer-events: auto; }
+  #overlay h1 { font-size: 2.4rem; color: #0ff; margin-bottom: 0.6rem; text-shadow: 0 0 18px #0ff; }
+  #overlay .sub { color: #aaa; font-size: 0.95rem; margin-bottom: 1.4rem; }
+  #overlay .hi-msg { color: #ff0; font-size: 1rem; margin-bottom: 1rem; }
+  #overlay .prompt { color: #555; font-size: 0.85rem; animation: blink 1.2s infinite; margin-top: 0.4rem; }
+  #overlay .mobile-hint { color: #444; font-size: 0.75rem; margin-top: 0.6rem; display: none; }
+  #pauseOverlay h1 { color: #0ff; text-shadow: 0 0 18px #0ff; }
+
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+  #mobile-controls {
+    display: none;
+    position: fixed;
+    bottom: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 50;
+  }
+  #mobile-controls .row {
+    display: flex;
+    justify-content: center;
+    gap: 6px;
+  }
+  #mobile-controls button {
+    width: 60px; height: 60px;
+    border: 2px solid #0ff4;
+    background: rgba(0,255,255,0.06);
+    color: #0ff;
+    font-size: 1.6rem;
+    border-radius: 10px;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+  #mobile-controls button:active { background: rgba(0,255,255,0.2); }
+
+  @media (hover: none) and (pointer: coarse) {
+    #mobile-controls { display: block; }
+    #overlay .mobile-hint { display: block; }
+    #hud { font-size: 0.8rem; gap: 1rem; }
+    canvas { max-width: 92vw; max-height: 56vh; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HUD -->
+<div id="hud">
+  <div>SCORE <span class="val" id="scoreVal">0</span></div>
+  <div>HIGH <span class="hi" id="hiVal">0</span></div>
+  <div>SPEED <span class="val" id="speedVal">1</span></div>
+</div>
+
+<!-- Game Canvas -->
+<canvas id="c"></canvas>
+
+<!-- Overlays -->
+<div id="overlay">
+  <h1 id="overlayTitle">GAME OVER</h1>
+  <div class="sub" id="overlaySub"></div>
+  <div class="author" id="overlayAuthor" style="color:#0ff;font-size:0.85rem;margin-bottom:0.3rem;text-shadow:0 0 8px #0ff4"></div>
+  <div class="hi-msg" id="overlayHi"></div>
+  <div class="prompt">TAP or PRESS ANY KEY TO START</div>
+  <div class="mobile-hint">Swipe or use D-pad to move</div>
+</div>
+<div id="overlay pauseOverlay" class="overlay" id="pauseOverlay" style="position:fixed;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;background:rgba(0,0,0,0.7);z-index:90">
+</div>
+
+<!-- Mobile D-pad -->
+<div id="mobile-controls">
+  <div class="row"><button id="mbUp">▲</button></div>
+  <div class="row">
+    <button id="mbLeft">◀</button>
+    <button id="mbPause">⏸</button>
+    <button id="mbRight">▶</button>
+  </div>
+  <div class="row"><button id="mbDown">▼</button></div>
+</div>
+
+<script>
+"use strict";
+
+/* ============================================================
+   SNAKE GAME – Production Build
+   Features: delta-time movement, progressive speed, food tiers,
+   particle FX, screen-shake, mobile touch, localStorage high-score
+   ============================================================ */
+
+// ── Canvas & Context ──────────────────────────────────────────
+const canvas = document.getElementById("c");
+const ctx = canvas.getContext("2d");
+
+// ── Constants ─────────────────────────────────────────────────
+const CELL = 20;                         // px per grid cell
+const COLS = 25;
+const ROWS = 25;
+canvas.width  = COLS * CELL;
+canvas.height = ROWS * CELL;
+
+const BASE_SPEED = 5.5;                  // cells/sec at start
+const MAX_SPEED  = 22;
+const SPEED_GROW = 0.18;                // speed gain per food eaten
+
+const GOLDEN_INTERVAL = 12;             // seconds between golden spawns
+const GOLDEN_LIFETIME = 5;              // seconds golden food stays
+
+// ── DOM refs ──────────────────────────────────────────────────
+const $score   = document.getElementById("scoreVal");
+const $hi      = document.getElementById("hiVal");
+const $speed   = document.getElementById("speedVal");
+const $overlay = document.getElementById("overlay");
+const $title   = document.getElementById("overlayTitle");
+const $sub     = document.getElementById("overlaySub");
+const $hiMsg   = document.getElementById("overlayHi");
+const $author  = document.getElementById("overlayAuthor");
+
+// ── State ─────────────────────────────────────────────────────
+let snake, dir, nextDir, score, hiScore, speed, alive, paused, started;
+let food, golden, goldenTimer, particles, shakeTimer, flashAlpha;
+let lastTime, accum, moveInterval;
+
+// ── High-score ────────────────────────────────────────────────
+hiScore = +(localStorage.getItem("snake_hi") || 0);
+$hi.textContent = hiScore;
+
+// ── Utility helpers ───────────────────────────────────────────
+const rand  = (a, b) => Math.floor(Math.random() * (b - a + 1)) + a;
+const clamp = (v, lo, hi) => v < lo ? lo : v > hi ? hi : v;
+const onGrid = (p) => snake.some(s => s.x === p.x && s.y === p.y);
+
+/** Spawn food that is NOT on the snake */
+function spawnFood() {
+  let p;
+  do { p = { x: rand(0, COLS - 1), y: rand(0, ROWS - 1) }; } while (onGrid(p));
+  return p;
+}
+
+/** Spawn golden food (same rule, different colour) */
+function spawnGolden() {
+  let p;
+  do { p = { x: rand(0, COLS - 1), y: rand(0, ROWS - 1) }; } while (onGrid(p) || (food.x === p.x && food.y === p.y));
+  return { ...p, timer: GOLDEN_LIFETIME };
+}
+
+// ── Particle system ───────────────────────────────────────────
+function burst(x, y, colour, count) {
+  for (let i = 0; i < count; i++) {
+    const angle = Math.random() * Math.PI * 2;
+    const spd   = 60 + Math.random() * 140;
+    particles.push({
+      x: x * CELL + CELL / 2,
+      y: y * CELL + CELL / 2,
+      vx: Math.cos(angle) * spd,
+      vy: Math.sin(angle) * spd,
+      life: 0.4 + Math.random() * 0.4,
+      maxLife: 0.4 + Math.random() * 0.4,
+      colour,
+      size: 2 + Math.random() * 3,
+    });
+  }
+}
+
+// ── Reset / init ──────────────────────────────────────────────
+function init() {
+  const midX = Math.floor(COLS / 2);
+  const midY = Math.floor(ROWS / 2);
+  snake  = [{ x: midX, y: midY }, { x: midX - 1, y: midY }, { x: midX - 2, y: midY }];
+  dir    = { x: 1, y: 0 };
+  nextDir = { ...dir };
+  score  = 0;
+  speed  = BASE_SPEED;
+  alive  = true;
+  paused = false;
+  food        = spawnFood();
+  golden      = null;
+  goldenTimer = GOLDEN_INTERVAL;
+  particles   = [];
+  shakeTimer  = 0;
+  flashAlpha  = 0;
+  lastTime    = performance.now();
+  accum       = 0;
+  moveInterval = 1 / speed;
+  $score.textContent = score;
+  $speed.textContent = 1;
+  $overlay.classList.remove("show");
+}
+
+// ── Input ─────────────────────────────────────────────────────
+const DIR_MAP = {
+  ArrowUp:    { x: 0, y:-1 }, KeyW: { x: 0, y:-1 },
+  ArrowDown:  { x: 0, y: 1 }, KeyS: { x: 0, y: 1 },
+  ArrowLeft:  { x:-1, y: 0 }, KeyA: { x:-1, y: 0 },
+  ArrowRight: { x: 1, y: 0 }, KeyD: { x: 1, y: 0 },
+};
+
+function setDir(nd) {
+  // No 180-degree turn
+  if (nd.x + dir.x === 0 && nd.y + dir.y === 0) return;
+  nextDir = nd;
+}
+
+document.addEventListener("keydown", (e) => {
+  // Restart from game-over
+  if (!alive) { startGame(); return; }
+
+  // Pause toggle
+  if (e.code === "Escape" || e.code === "Space") {
+    e.preventDefault();
+    paused = !paused;
+    if (!paused) { lastTime = performance.now(); accum = 0; }
+    return;
+  }
+
+  const nd = DIR_MAP[e.code];
+  if (nd) { e.preventDefault(); setDir(nd); }
+});
+
+// ── Mobile controls ───────────────────────────────────────────
+const touchMap = {
+  mbUp:    { x: 0, y:-1 },
+  mbDown:  { x: 0, y: 1 },
+  mbLeft:  { x:-1, y: 0 },
+  mbRight: { x: 1, y: 0 },
+};
+
+Object.entries(touchMap).forEach(([id, d]) => {
+  const btn = document.getElementById(id);
+  if (!btn) return;
+  btn.addEventListener("touchstart", (e) => {
+    e.preventDefault();
+    if (!alive) { startGame(); return; }
+    setDir(d);
+  }, { passive: false });
+});
+
+document.getElementById("mbPause").addEventListener("touchstart", (e) => {
+  e.preventDefault();
+  if (!alive) { startGame(); return; }
+  paused = !paused;
+  if (!paused) { lastTime = performance.now(); accum = 0; }
+}, { passive: false });
+
+// Swipe gesture on canvas
+let touchStart = null;
+canvas.addEventListener("touchstart", (e) => {
+  const t = e.touches[0];
+  touchStart = { x: t.clientX, y: t.clientY };
+}, { passive: true });
+canvas.addEventListener("touchend", (e) => {
+  if (!touchStart) return;
+  const t = e.changedTouches[0];
+  const dx = t.clientX - touchStart.x;
+  const dy = t.clientY - touchStart.y;
+  touchStart = null;
+  if (Math.abs(dx) < 15 && Math.abs(dy) < 15) return;   // tap, ignore
+  if (!alive) { startGame(); return; }
+  if (Math.abs(dx) > Math.abs(dy)) {
+    setDir(dx > 0 ? { x:1,y:0 } : { x:-1,y:0 });
+  } else {
+    setDir(dy > 0 ? { x:0,y:1 } : { x:0,y:-1 });
+  }
+}, { passive: true });
+
+// ── Game-over screen ──────────────────────────────────────────
+function gameOver() {
+  alive = false;
+  started = false;
+  if (score > hiScore) {
+    hiScore = score;
+    localStorage.setItem("snake_hi", hiScore);
+    $hi.textContent = hiScore;
+  }
+  $title.textContent = "GAME OVER";
+  $sub.textContent   = `Score: ${score}`;
+  $author.textContent = "";
+  $hiMsg.textContent = score >= hiScore ? "★ NEW HIGH SCORE ★" : `High Score: ${hiScore}`;
+  $overlay.querySelector(".prompt").textContent = "TAP or PRESS ANY KEY TO RESTART";
+  $overlay.classList.add("show");
+}
+
+// ── Update ────────────────────────────────────────────────────
+function update(dt) {
+  if (paused || !alive) return;
+
+  // Particles
+  for (let i = particles.length - 1; i >= 0; i--) {
+    const p = particles[i];
+    p.x += p.vx * dt;
+    p.y += p.vy * dt;
+    p.life -= dt;
+    if (p.life <= 0) particles.splice(i, 1);
+  }
+
+  // Screen shake decay
+  if (shakeTimer > 0) shakeTimer -= dt;
+
+  // Flash decay
+  if (flashAlpha > 0) flashAlpha -= dt * 3;
+
+  // Golden timer
+  if (golden) {
+    golden.timer -= dt;
+    if (golden.timer <= 0) golden = null;
+  } else {
+    goldenTimer -= dt;
+    if (goldenTimer <= 0) {
+      golden = spawnGolden();
+      goldenTimer = GOLDEN_INTERVAL + rand(-2, 2);
+      flashAlpha = 0.6; // colour flash on spawn
+    }
+  }
+
+  // Accumulate time for grid-snapped movement
+  accum += dt;
+  moveInterval = 1 / speed;
+
+  if (accum < moveInterval) return;
+  accum -= moveInterval;
+
+  // Commit direction
+  dir = { ...nextDir };
+
+  // Move head
+  const head = snake[0];
+  const nx = head.x + dir.x;
+  const ny = head.y + dir.y;
+
+  // Wall collision
+  if (nx < 0 || nx >= COLS || ny < 0 || ny >= ROWS) {
+    shakeTimer = 0.35;
+    gameOver();
+    return;
+  }
+
+  // Self collision
+  if (snake.some(s => s.x === nx && s.y === ny)) {
+    shakeTimer = 0.35;
+    gameOver();
+    return;
+  }
+
+  snake.unshift({ x: nx, y: ny });
+
+  // Food check – standard
+  let ate = false;
+  if (nx === food.x && ny === food.y) {
+    score += 1;
+    speed  = Math.min(MAX_SPEED, speed + SPEED_GROW);
+    burst(food.x, food.y, "#f44", 14);
+    food = spawnFood();
+    ate  = true;
+  }
+
+  // Food check – golden
+  if (golden && nx === golden.x && ny === golden.y) {
+    score += 5;
+    burst(golden.x, golden.y, "#ff0", 22);
+    golden = null;
+    goldenTimer = GOLDEN_INTERVAL;
+    ate = true;
+  }
+
+  if (!ate) snake.pop();
+
+  $score.textContent = score;
+  $speed.textContent = Math.round(speed);
+}
+
+// ── Render ────────────────────────────────────────────────────
+function render() {
+  ctx.save();
+
+  // Screen shake
+  if (shakeTimer > 0) {
+    const sx = (Math.random() - 0.5) * 8 * shakeTimer;
+    const sy = (Math.random() - 0.5) * 8 * shakeTimer;
+    ctx.translate(sx, sy);
+  }
+
+  // Background
+  ctx.fillStyle = "#0d0d14";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  // Grid dots (subtle)
+  ctx.fillStyle = "#1a1a24";
+  for (let x = 0; x < COLS; x++) {
+    for (let y = 0; y < ROWS; y++) {
+      ctx.fillRect(x * CELL + CELL / 2 - 1, y * CELL + CELL / 2 - 1, 2, 2);
+    }
+  }
+
+  // Food – standard
+  const fx = food.x * CELL + CELL / 2;
+  const fy = food.y * CELL + CELL / 2;
+  const pulse = 1 + Math.sin(performance.now() / 200) * 0.15;
+  ctx.beginPath();
+  ctx.arc(fx, fy, CELL / 2.5 * pulse, 0, Math.PI * 2);
+  ctx.fillStyle = "#f44";
+  ctx.shadowColor = "#f44";
+  ctx.shadowBlur = 12;
+  ctx.fill();
+  ctx.shadowBlur = 0;
+
+  // Food – golden
+  if (golden) {
+    const gx = golden.x * CELL + CELL / 2;
+    const gy = golden.y * CELL + CELL / 2;
+    const gp = 1 + Math.sin(performance.now() / 140) * 0.2;
+    const alpha = golden.timer < 1.5 ? golden.timer / 1.5 : 1; // blink when expiring
+    ctx.globalAlpha = alpha;
+    ctx.beginPath();
+    ctx.arc(gx, gy, CELL / 2.3 * gp, 0, Math.PI * 2);
+    ctx.fillStyle = "#ff0";
+    ctx.shadowColor = "#ff0";
+    ctx.shadowBlur = 16;
+    ctx.fill();
+    ctx.shadowBlur = 0;
+    ctx.globalAlpha = 1;
+  }
+
+  // Snake body
+  for (let i = snake.length - 1; i >= 0; i--) {
+    const s  = snake[i];
+    const sx = s.x * CELL;
+    const sy = s.y * CELL;
+    const t  = i / snake.length;          // 0 = head, 1 = tail
+
+    // Gradient colour: head cyan → tail deep-blue
+    const r = Math.round(0   + t * 10);
+    const g = Math.round(255 - t * 180);
+    const b = Math.round(255 - t * 60);
+    ctx.fillStyle = `rgb(${r},${g},${b})`;
+
+    if (i === 0) {
+      // Head – rounded
+      ctx.shadowColor = "#0ff";
+      ctx.shadowBlur  = 10;
+      ctx.beginPath();
+      ctx.roundRect(sx + 1, sy + 1, CELL - 2, CELL - 2, 5);
+      ctx.fill();
+      ctx.shadowBlur = 0;
+
+      // Eyes
+      ctx.fillStyle = "#000";
+      const ex = dir.x === 0 ? 5 : (dir.x > 0 ? 7 : 3);
+      const ey = dir.y === 0 ? 5 : (dir.y > 0 ? 7 : 3);
+      ctx.beginPath();
+      ctx.arc(sx + CELL / 2 - ex + 3, sy + CELL / 2 - ey + 3, 2.2, 0, Math.PI * 2);
+      ctx.arc(sx + CELL / 2 + ex - 3, sy + CELL / 2 - ey + 3, 2.2, 0, Math.PI * 2);
+      ctx.fill();
+    } else {
+      // Body segments – slight rounding
+      ctx.beginPath();
+      ctx.roundRect(sx + 1.5, sy + 1.5, CELL - 3, CELL - 3, 3);
+      ctx.fill();
+    }
+  }
+
+  // Particles
+  for (const p of particles) {
+    const a = p.life / p.maxLife;
+    ctx.globalAlpha = a;
+    ctx.fillStyle = p.colour;
+    ctx.fillRect(p.x - p.size / 2, p.y - p.size / 2, p.size, p.size);
+  }
+  ctx.globalAlpha = 1;
+
+  // Spawn flash
+  if (flashAlpha > 0) {
+    ctx.fillStyle = `rgba(255,255,0,${flashAlpha * 0.15})`;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+  }
+
+  // Pause overlay
+  if (paused) {
+    ctx.fillStyle = "rgba(0,0,0,0.55)";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = "#0ff";
+    ctx.font = "bold 28px 'Courier New', monospace";
+    ctx.textAlign = "center";
+    ctx.fillText("PAUSED", canvas.width / 2, canvas.height / 2 - 6);
+    ctx.fillStyle = "#555";
+    ctx.font = "14px 'Courier New', monospace";
+    ctx.fillText("Press ESC / SPACE / ⏸ to resume", canvas.width / 2, canvas.height / 2 + 22);
+    ctx.textAlign = "start";
+  }
+
+  ctx.restore();
+}
+
+// ── Main loop ─────────────────────────────────────────────────
+function loop(now) {
+  const dt = Math.min((now - lastTime) / 1000, 0.1);   // cap delta to avoid spiral
+  lastTime = now;
+  update(dt);
+  render();
+  requestAnimationFrame(loop);
+}
+
+// ── Start ─────────────────────────────────────────────────────
+init();
+started = false;
+$overlay.classList.add("show");
+$title.textContent = "Snake Arcade Game";
+$sub.textContent   = "AI-101 Panaversity";
+$author.textContent = "by. Saddam Hussain";
+$hiMsg.textContent = hiScore ? `High Score: ${hiScore}` : "";
+$overlay.querySelector(".prompt").textContent = "TAP or PRESS ANY KEY TO START";
+
+function startGame() {
+  if (started) return;
+  started = true;
+  init();
+  lastTime = performance.now();
+  requestAnimationFrame(loop);
+}
+
+document.addEventListener("keydown", function startKey(e) {
+  if (started) return;
+  document.removeEventListener("keydown", startKey);
+  startGame();
+});
+
+/* Mobile: tap overlay to start / restart */
+$overlay.addEventListener("click", startGame);
+$overlay.addEventListener("touchend", (e) => {
+  e.preventDefault();
+  startGame();
+});
+
+/* Canvas tap also restarts when game is over */
+canvas.addEventListener("click", () => { if (!alive) startGame(); });
+canvas.addEventListener("touchend", (e) => { if (!alive) { e.preventDefault(); startGame(); } });
+
+</script>
+</body>
+</html>
