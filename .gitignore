@@ -2,3 +2,6 @@
 *.py
 *.txt
 slides/
+
+# Third-party template sources (design reference only, not deliverables)
+AI-101/Lecture_6/geeky-nextjs-1.0.0.zip
