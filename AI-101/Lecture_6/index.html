@@ -273,6 +273,7 @@
       aspect-ratio: 1;
       border-radius: 50%;
       object-fit: cover;
+      object-position: center 20%;   /* nudge the face down so hair isn't clipped */
       border: 6px solid var(--body);
       box-shadow: var(--shadow), 0 0 0 2px var(--primary);
     }
@@ -319,8 +320,10 @@
       border-radius: 12px;
       background: color-mix(in srgb, var(--primary) 14%, transparent);
       color: var(--primary);
+      transition: transform 0.4s ease, background 0.3s ease;
     }
     .skill-icon svg { width: 24px; height: 24px; }
+    .card:hover .skill-icon { transform: translateY(-3px) rotate(-6deg); background: color-mix(in srgb, var(--primary) 22%, transparent); }
     .skill-head h3 { font-size: 1.15rem; }
     /* experience-style bulleted list with primary dot + ring */
     .dot-list li {
@@ -340,29 +343,46 @@
       box-shadow: 0 0 0 2px var(--primary);
     }
 
-    /* project card */
-    .project-card { display: flex; flex-direction: column; }
-    .project-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; margin-bottom: 0.75rem; }
+    /* project card — media header + body */
+    .projects-grid { display: grid; gap: 1.75rem; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); }
+    .project-card { display: flex; flex-direction: column; padding: 0; overflow: hidden; }
+    .project-media { position: relative; height: 200px; overflow: hidden; background: var(--theme-light); border-bottom: 1px solid var(--border); }
+    html.dark .project-media { background: #0d0d0d; }
+    .project-media img { width: 100%; height: 100%; object-fit: cover; object-position: top center; transition: transform 0.7s cubic-bezier(.2,.7,.2,1); }
+    .project-card:hover .project-media img { transform: scale(1.06); }
+    .media-icon { width: 100%; height: 100%; display: grid; place-items: center;
+      background: linear-gradient(135deg, color-mix(in srgb, var(--primary) 20%, transparent), color-mix(in srgb, var(--primary) 4%, transparent)); }
+    .media-icon svg { width: 56px; height: 56px; color: var(--primary); transition: transform 0.5s ease; }
+    .project-card:hover .media-icon svg { transform: scale(1.1) rotate(-4deg); }
+    .project-body { display: flex; flex-direction: column; flex-grow: 1; padding: 1.6rem; }
+    .project-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; margin-bottom: 0.6rem; }
     .project-badge {
       font-family: var(--font-secondary);
-      font-size: 0.7rem; font-weight: 700;
+      font-size: 0.68rem; font-weight: 700;
       text-transform: uppercase; letter-spacing: 0.5px;
       padding: 0.3rem 0.7rem; border-radius: 50px;
       background: color-mix(in srgb, var(--primary) 14%, transparent);
       color: var(--primary);
       white-space: nowrap;
     }
-    .project-card h3 { font-size: 1.2rem; margin-bottom: 0.6rem; }
-    .project-card p { flex-grow: 1; margin-bottom: 1rem; }
+    .project-body h3 { font-size: 1.15rem; margin-bottom: 0.55rem; }
+    .project-body p { flex-grow: 1; margin-bottom: 1rem; font-size: 0.95rem; }
+    .project-links { display: flex; flex-wrap: wrap; gap: 1.2rem; margin-top: auto; }
     .project-link {
       font-family: var(--font-secondary);
-      font-weight: 700; font-size: 0.9rem;
+      font-weight: 700; font-size: 0.88rem;
       color: var(--primary);
       display: inline-flex; align-items: center; gap: 0.4rem;
+      transition: gap 0.25s ease;
     }
-    .project-link:hover { gap: 0.7rem; }
-    .project-icon { color: var(--primary); margin-bottom: 1rem; }
-    .project-icon svg { width: 34px; height: 34px; }
+    .project-link:hover { gap: 0.65rem; }
+    /* image carousel */
+    .carousel { position: absolute; inset: 0; }
+    .carousel img { position: absolute; inset: 0; opacity: 0; transition: opacity 1.1s ease; }
+    .carousel img.active { opacity: 1; }
+    .carousel-dots { position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%); display: flex; gap: 6px; z-index: 3; }
+    .carousel-dots i { width: 7px; height: 7px; border-radius: 50%; background: rgba(255,255,255,0.55); display: block; transition: all 0.3s ease; }
+    .carousel-dots i.active { background: var(--primary); width: 18px; border-radius: 4px; }
 
     /* education timeline */
     .timeline { position: relative; padding-left: 2rem; }
@@ -400,6 +420,25 @@
     /* scroll reveal animation */
     .reveal { opacity: 0; transform: translateY(28px); transition: opacity 0.7s ease, transform 0.7s ease; }
     .reveal.visible { opacity: 1; transform: none; }
+    /* stagger cards as their grid scrolls into view */
+    .grid > .reveal:nth-child(2), .projects-grid > .reveal:nth-child(2) { transition-delay: 0.1s; }
+    .grid > .reveal:nth-child(3), .projects-grid > .reveal:nth-child(3) { transition-delay: 0.2s; }
+    .grid > .reveal:nth-child(4), .projects-grid > .reveal:nth-child(4) { transition-delay: 0.3s; }
+    .projects-grid > .reveal:nth-child(5) { transition-delay: 0.15s; }
+    .projects-grid > .reveal:nth-child(6) { transition-delay: 0.25s; }
+
+    /* hero entrance stagger + gentle float */
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: none; } }
+    @keyframes floaty { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+    .banner-text > * { animation: fadeUp 0.7s both; }
+    .banner-text > *:nth-child(1) { animation-delay: 0.05s; }
+    .banner-text > *:nth-child(2) { animation-delay: 0.15s; }
+    .banner-text > *:nth-child(3) { animation-delay: 0.25s; }
+    .banner-text > *:nth-child(4) { animation-delay: 0.35s; }
+    .banner-text > *:nth-child(5) { animation-delay: 0.45s; }
+    .banner-text > *:nth-child(6) { animation-delay: 0.55s; }
+    .portrait-wrap { animation: fadeUp 0.9s both 0.2s; }
+    #home .portrait { animation: floaty 6s ease-in-out 1.2s infinite; }
 
     /* back to top */
     .to-top {
@@ -604,45 +643,119 @@
       <div style="text-align:center;" class="reveal">
         <h2 class="section-title">Core Projects</h2>
       </div>
-      <div class="grid grid-2">
+      <div class="projects-grid">
+
+        <!-- OpenGridPK -->
         <div class="card project-card reveal">
-          <div class="project-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></div>
-          <div class="project-top">
-            <h3>OpenGridPK</h3>
-            <span class="project-badge">Open Source</span>
+          <div class="project-media">
+            <div class="media-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></div>
           </div>
-          <p>An open-data transmission grid map of Pakistan built with OSM and PyPSA-Earth. Python pipelines automatically render updates into a static MapLibre site with automated monthly refreshes.</p>
-          <a class="project-link" href="https://github.com/saddamchandio/OpenGridPK" target="_blank" rel="noopener">View on GitHub
-            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M7 17 17 7M7 7h10v10"/></svg>
-          </a>
+          <div class="project-body">
+            <div class="project-top">
+              <h3>OpenGridPK</h3>
+              <span class="project-badge">Open Source</span>
+            </div>
+            <p>An open-data transmission grid map of Pakistan built with OSM and PyPSA-Earth. Python pipelines automatically render updates into a static MapLibre site with automated monthly refreshes.</p>
+            <div class="project-links">
+              <a class="project-link" href="https://github.com/saddamchandio/OpenGridPK" target="_blank" rel="noopener">
+                <svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor"><path d="M12 2A10 10 0 0 0 2 12c0 4.42 2.87 8.17 6.84 9.5.5.09.68-.22.68-.48v-1.7c-2.78.6-3.37-1.34-3.37-1.34-.45-1.16-1.11-1.47-1.11-1.47-.91-.62.07-.6.07-.6 1 .07 1.53 1.03 1.53 1.03.89 1.53 2.34 1.09 2.91.83.09-.65.35-1.09.63-1.34-2.22-.25-4.55-1.11-4.55-4.94 0-1.09.39-1.98 1.03-2.68-.1-.25-.45-1.27.1-2.65 0 0 .84-.27 2.75 1.02a9.56 9.56 0 0 1 5 0c1.91-1.29 2.75-1.02 2.75-1.02.55 1.38.2 2.4.1 2.65.64.7 1.03 1.59 1.03 2.68 0 3.84-2.34 4.69-4.57 4.94.36.31.68.92.68 1.85v2.74c0 .27.18.58.69.48A10 10 0 0 0 22 12 10 10 0 0 0 12 2z"/></svg>
+                GitHub
+              </a>
+            </div>
+          </div>
         </div>
 
+        <!-- Regulatory Auditor Agent (screenshot carousel) -->
         <div class="card project-card reveal">
-          <div class="project-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M9 15l2 2 4-4"/></svg></div>
-          <div class="project-top">
-            <h3>Regulatory Auditor Agent</h3>
-            <span class="project-badge">Agentic AI</span>
+          <div class="project-media">
+            <div class="carousel">
+              <img class="active" src="regulatory-1.jpg" alt="Grid Code Compliance Audit — document selection" loading="lazy" width="900" height="461" />
+              <img src="regulatory-2.jpg" alt="Compliance Audit Report generated against the NEPRA Grid Code 2023" loading="lazy" width="900" height="462" />
+              <img src="regulatory-3.jpg" alt="NEPRA Grid Code compliance requirements detail" loading="lazy" width="900" height="460" />
+            </div>
+            <div class="carousel-dots"><i class="active"></i><i></i><i></i></div>
           </div>
-          <p>An AI-driven agentic workflow that parses, interprets, and audits grid code compliance — dynamically automating complex regulatory logic checks across power system datasets.</p>
+          <div class="project-body">
+            <div class="project-top">
+              <h3>Regulatory Auditor Agent</h3>
+              <span class="project-badge">Agentic AI</span>
+            </div>
+            <p>An AI-driven agentic workflow that parses, interprets, and audits Energy Purchase Agreements against the NEPRA Grid Code 2023 — automating complex regulatory logic checks across power-system datasets.</p>
+          </div>
         </div>
 
+        <!-- Nexus Wind Intelligence (screenshot) -->
         <div class="card project-card reveal">
-          <div class="project-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v3M5.6 5.6l2.1 2.1M3 12h3M18 12h3M16.3 7.7l2.1-2.1M8 20a4 4 0 0 1 8 0M12 9a3 3 0 1 0 0 6 3 3 0 0 0 0-6z"/></svg></div>
-          <div class="project-top">
-            <h3>Nexus Wind Intelligence &amp; NPMV Predictor</h3>
-            <span class="project-badge">ML / Forecasting</span>
+          <div class="project-media">
+            <img src="nexus-wind.jpg" alt="Nexus Wind Intelligence — EPA &amp; OP analysis platform powered by Agentic RAG" loading="lazy" width="900" height="463" />
           </div>
-          <p>A localized machine learning tool using meteorology APIs to forecast variable wind generation profiles and calculate Non-Project Missed Volume (NPMV) thresholds for wind power projects.</p>
+          <div class="project-body">
+            <div class="project-top">
+              <h3>Nexus Wind Intelligence &amp; NPMV Predictor</h3>
+              <span class="project-badge">ML / Forecasting</span>
+            </div>
+            <p>An EPA &amp; OP analysis platform powered by Agentic RAG. Uses meteorology APIs to forecast variable wind generation and calculate Non-Project Missed Volume (NPMV) thresholds for wind power projects.</p>
+          </div>
         </div>
 
+        <!-- NEPRA Grid Code AI Assistant (Hugging Face) -->
         <div class="card project-card reveal">
-          <div class="project-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 3 14h7l-1 8 10-12h-7l1-8z"/></svg></div>
-          <div class="project-top">
-            <h3>132kV Self-Healing Grid Model</h3>
-            <span class="project-badge">In Progress</span>
+          <div class="project-media">
+            <div class="media-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="8" width="16" height="12" rx="2.5"/><path d="M12 8V4M9 3.5h6"/><circle cx="9" cy="14" r="1.1" fill="currentColor" stroke="none"/><circle cx="15" cy="14" r="1.1" fill="currentColor" stroke="none"/><path d="M2 13v3M22 13v3"/></svg></div>
           </div>
-          <p>Regional distribution networks simulated in PyPSA to model automated restoration protocols and self-healing grid topologies for resilient power delivery.</p>
+          <div class="project-body">
+            <div class="project-top">
+              <h3>NEPRA Grid Code AI Assistant</h3>
+              <span class="project-badge">Agentic RAG</span>
+            </div>
+            <p>A deployed AI assistant that answers questions and runs compliance audits against the NEPRA Grid Code 2023 — live and interactive on Hugging Face Spaces.</p>
+            <div class="project-links">
+              <a class="project-link" href="https://huggingface.co/spaces/saddamchandio/NEPRA-Grid-Code-AI-Assistantv2" target="_blank" rel="noopener">
+                <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6M10 14 21 3M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg>
+                Live Demo
+              </a>
+            </div>
+          </div>
         </div>
+
+        <!-- Pakistan Energy Demand Forecast (Streamlit) -->
+        <div class="card project-card reveal">
+          <div class="project-media">
+            <div class="media-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 14l3-4 3 3 4-6 2 3"/></svg></div>
+          </div>
+          <div class="project-body">
+            <div class="project-top">
+              <h3>Pakistan Energy Demand Forecast</h3>
+              <span class="project-badge">ML / Streamlit</span>
+            </div>
+            <p>A machine-learning app that forecasts Pakistan's national energy demand, deployed as an interactive Streamlit dashboard for scenario exploration.</p>
+            <div class="project-links">
+              <a class="project-link" href="https://github.com/saddamchandio/pakistan-energy-demand-forecast" target="_blank" rel="noopener">
+                <svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor"><path d="M12 2A10 10 0 0 0 2 12c0 4.42 2.87 8.17 6.84 9.5.5.09.68-.22.68-.48v-1.7c-2.78.6-3.37-1.34-3.37-1.34-.45-1.16-1.11-1.47-1.11-1.47-.91-.62.07-.6.07-.6 1 .07 1.53 1.03 1.53 1.03.89 1.53 2.34 1.09 2.91.83.09-.65.35-1.09.63-1.34-2.22-.25-4.55-1.11-4.55-4.94 0-1.09.39-1.98 1.03-2.68-.1-.25-.45-1.27.1-2.65 0 0 .84-.27 2.75 1.02a9.56 9.56 0 0 1 5 0c1.91-1.29 2.75-1.02 2.75-1.02.55 1.38.2 2.4.1 2.65.64.7 1.03 1.59 1.03 2.68 0 3.84-2.34 4.69-4.57 4.94.36.31.68.92.68 1.85v2.74c0 .27.18.58.69.48A10 10 0 0 0 22 12 10 10 0 0 0 12 2z"/></svg>
+                GitHub
+              </a>
+              <a class="project-link" href="https://pakistan-energy-demand-forecast-jelw2vd7jwuj8agqgoyhqv.streamlit.app/" target="_blank" rel="noopener">
+                <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6M10 14 21 3M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg>
+                Live Demo
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- 132kV Self-Healing Grid -->
+        <div class="card project-card reveal">
+          <div class="project-media">
+            <div class="media-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 3 14h7l-1 8 10-12h-7l1-8z"/></svg></div>
+          </div>
+          <div class="project-body">
+            <div class="project-top">
+              <h3>132kV Self-Healing Grid Model</h3>
+              <span class="project-badge">In Progress</span>
+            </div>
+            <p>Regional distribution networks simulated in PyPSA to model automated restoration protocols and self-healing grid topologies for resilient power delivery.</p>
+          </div>
+        </div>
+
       </div>
     </div>
   </section>
@@ -773,6 +886,21 @@
       toTop.classList.toggle("show", window.scrollY > 500);
     });
     toTop.addEventListener("click", function () { window.scrollTo({ top: 0, behavior: "smooth" }); });
+
+    // ---------- Project image carousels (auto-fade) ----------
+    document.querySelectorAll(".carousel").forEach(function (car) {
+      const imgs = car.querySelectorAll("img");
+      if (imgs.length < 2) return;
+      const dots = car.parentElement.querySelectorAll(".carousel-dots i");
+      let idx = 0;
+      setInterval(function () {
+        imgs[idx].classList.remove("active");
+        if (dots[idx]) dots[idx].classList.remove("active");
+        idx = (idx + 1) % imgs.length;
+        imgs[idx].classList.add("active");
+        if (dots[idx]) dots[idx].classList.add("active");
+      }, 3500);
+    });
 
     // ---------- Footer year ----------
     document.getElementById("year").textContent = new Date().getFullYear();
