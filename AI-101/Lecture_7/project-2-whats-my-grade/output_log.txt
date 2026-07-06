@@ -1,0 +1,25 @@
+============================================================
+ WHAT'S MY GRADE, REALLY  —  CS-201 Data Structures & Algorithms
+ Fall 2026 · FAST-NUCES Karachi (synthetic sample)
+============================================================
+
+ CATEGORY BREAKDOWN (after your teacher's rules)
+ --------------------------------------------------------
+   Quizzes       85.00%   (best 4 of 5, dropped lowest; kept [10, 9, 8, 7])
+   Assignments   88.50%   (weight 10%)
+   Midterm       68.00%   (weight 25%)
+   Project       90.00%   (weight 15%)
+   Final        not taken yet   (weight 35%)
+
+ CURRENT STANDING (on completed work only)
+ --------------------------------------------------------
+   80.15%   ->  grade A-   (65% of the course is graded so far)
+
+ FINAL EXAM TARGET  (to reach 85% = grade A)
+ --------------------------------------------------------
+   You need  83.17%  on the final exam.
+   NOTE: Replacement rule APPLIES — your final (>68% midterm) absorbs
+         the midterm's 25% weight, lowering the bar.
+         Without the rule you'd have needed 94.00%.
+
+============================================================

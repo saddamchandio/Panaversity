@@ -1,0 +1,63 @@
+==============================================================
+ MONEY DETECTIVE  —  leak report
+==============================================================
+ Loaded 50 transactions from 'transactions.csv'
+
+--------------------------------------------------------------
+ MONTHLY TOTALS  (verify against your statement footer)
+--------------------------------------------------------------
+   2026-03   PKR    37,207.00
+   2026-04   PKR    44,965.00
+   2026-05   PKR    44,646.00
+
+--------------------------------------------------------------
+ RECURRING CHARGES  (9 found)
+--------------------------------------------------------------
+   PKR  5,000.00 x 3 mo  PSO Petrol Pump - Fuel
+                        seen: 2026-03, 2026-04, 2026-05
+   PKR  4,500.00 x 3 mo  Shaukat Khanum Gym Membership  <-- FORGOTTEN?
+                        seen: 2026-03, 2026-04, 2026-05
+   PKR  3,500.00 x 3 mo  PTCL Broadband Bill
+                        seen: 2026-03, 2026-04, 2026-05
+   PKR  1,100.00 x 3 mo  Netflix Pakistan  <-- FORGOTTEN?
+                        seen: 2026-03, 2026-04, 2026-05
+   PKR  1,000.00 x 3 mo  Jazz Mobile Load
+                        seen: 2026-03, 2026-04, 2026-05
+   PKR    550.00 x 3 mo  Google One Cloud Storage  <-- FORGOTTEN?
+                        seen: 2026-03, 2026-04, 2026-05
+   PKR    439.00 x 3 mo  YouTube Premium  <-- FORGOTTEN?
+                        seen: 2026-03, 2026-04, 2026-05
+   PKR    299.00 x 3 mo  Spotify Premium  <-- FORGOTTEN?
+                        seen: 2026-03, 2026-04, 2026-05
+   PKR    200.00 x 3 mo  Daraz VIP Subscription  <-- FORGOTTEN?
+                        seen: 2026-03, 2026-04, 2026-05
+
+--------------------------------------------------------------
+ FORGOTTEN-SUBSCRIPTION SUSPECTS
+--------------------------------------------------------------
+   PKR  4,500.00 / month   Shaukat Khanum Gym Membership
+   PKR  1,100.00 / month   Netflix Pakistan
+   PKR    550.00 / month   Google One Cloud Storage
+   PKR    439.00 / month   YouTube Premium
+   PKR    299.00 / month   Spotify Premium
+   PKR    200.00 / month   Daraz VIP Subscription
+   ----------------------------------------
+   PKR  7,088.00 / month  = PKR 85,056.00 / year
+
+--------------------------------------------------------------
+ DUPLICATE / DOUBLE CHARGES  (2 found)
+--------------------------------------------------------------
+   2026-04-13  x2  PKR 1,899.00  Foodpanda Order - Pizza Max
+                 overcharged by PKR 1,899.00
+   2026-05-22  x2  PKR 2,499.00  Daraz.pk Order - Bedsheet
+                 overcharged by PKR 2,499.00
+   ----------------------------------------
+   Total recoverable from duplicates: PKR 4,398.00
+
+==============================================================
+ THE LEAK
+==============================================================
+   Forgotten subscriptions : PKR  7,088.00 / month
+   Duplicate charges       : PKR  4,398.00 (one-off recover)
+   Annualised subscription bleed: PKR 85,056.00
+==============================================================

@@ -1,6 +1,4 @@
-# Temp scripts and artifacts
-*.py
-*.txt
+# Temp artifacts
 slides/
 
 # Third-party template sources (design reference only, not deliverables)

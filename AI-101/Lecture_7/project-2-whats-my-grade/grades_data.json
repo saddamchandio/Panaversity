@@ -1,0 +1,29 @@
+{
+  "course": "CS-201 Data Structures & Algorithms",
+  "institution": "FAST-NUCES Karachi (synthetic sample)",
+  "semester": "Fall 2026",
+  "student": "Synthetic Student",
+  "target_grade_percent": 85.0,
+  "grading_scale": {
+    "A":  85, "A-": 80, "B+": 75, "B": 70,
+    "C+": 65, "C": 60, "D": 50, "F": 0
+  },
+  "policy": {
+    "quizzes":     { "weight": 15, "count": 5, "drop_lowest": 1, "out_of": 10 },
+    "assignments": { "weight": 10, "drop_lowest": 0, "out_of": 100 },
+    "midterm":     { "weight": 25, "out_of": 100 },
+    "project":     { "weight": 15, "out_of": 100 },
+    "final":       { "weight": 35, "out_of": 100 }
+  },
+  "special_rules": {
+    "final_replaces_midterm_if_higher": true,
+    "note": "If Final % > Midterm %, the midterm's 25% weight is moved onto the final exam (final becomes 60%, midterm 0%). Rewards students who improve."
+  },
+  "scores": {
+    "quizzes":     [7, 9, 5, 8, 10],
+    "assignments": [88, 92, 79, 95],
+    "midterm":     68,
+    "project":     90,
+    "final":       null
+  }
+}

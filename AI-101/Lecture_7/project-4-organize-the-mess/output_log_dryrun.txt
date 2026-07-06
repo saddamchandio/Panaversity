@@ -1,0 +1,61 @@
+==============================================================
+ ORGANIZE THE MESS   —   DRY RUN (nothing will be touched)
+==============================================================
+ Source folder : sample_messy_folder
+ Files scanned : 19
+ Total size    : 176.2 KB
+
+--------------------------------------------------------------
+ PLAN — files grouped by type (would be COPIED, originals kept)
+--------------------------------------------------------------
+   Archives/  (1)
+       daraz_invoice.zip
+   Audio/  (1)
+       nusrat_qawwali.mp3
+   Code/  (1)
+       old_scraper.py
+   Documents/  (9)
+       Untitled document.txt
+       assignment1 - Copy.docx
+       assignment1.docx
+       budget_2026.xlsx
+       fee_challan_spring2026.pdf
+       k_electric_bill_may.pdf
+       notes_meeting.txt
+       resume_final.pdf
+       resume_final_v2.pdf
+   Images/  (5)
+       IMG_20260501_123456 (1).jpg
+       IMG_20260501_123456.jpg
+       Screenshot_2026-05-02_office.png
+       Screenshot_2026-05-10_grades.png
+       whatsapp_image_eid.jpg
+   Installers/  (1)
+       setup_installer.exe
+   Other/  (1)
+       download.tmp
+
+--------------------------------------------------------------
+ DUPLICATE FILES  (3 group(s), same contents verified by SHA-256)
+--------------------------------------------------------------
+   identical  (1600 bytes):
+       IMG_20260501_123456 (1).jpg  [keep]
+       IMG_20260501_123456.jpg  [redundant copy]
+   identical  (1620 bytes):
+       assignment1 - Copy.docx  [keep]
+       assignment1.docx  [redundant copy]
+   identical  (2520 bytes):
+       resume_final.pdf  [keep]
+       resume_final_v2.pdf  [redundant copy]
+   --------------------------------------------
+   Reclaimable if you delete the redundant copies: 5740 bytes
+
+--------------------------------------------------------------
+ LARGE FILES  (> 100 KB)
+--------------------------------------------------------------
+      156.2 KB   setup_installer.exe
+
+==============================================================
+ This was a DRY RUN. No file was moved, copied, renamed, or deleted.
+ Re-run with  --execute  to copy into a new 'organized_output/' folder.
+==============================================================

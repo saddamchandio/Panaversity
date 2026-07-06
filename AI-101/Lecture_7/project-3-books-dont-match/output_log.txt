@@ -1,0 +1,46 @@
+============================================================
+ THE BOOKS DON'T MATCH  —  Gulshan Cricket Club — May 2026 Monthly Dues
+============================================================
+   Expected total (my count)   : PKR  18,000.00
+   Digitally received (raw)    : PKR  17,000.00
+   Raw gap                     : PKR   1,000.00
+
+ MATCHED PAYMENTS (after applying my interpretation rules)
+ --------------------------------------------------------
+   Ahmed Raza       PKR 1,500.00   OK
+   Bilal Ahmed      PKR 1,500.00   OK
+   Faizan Ali       PKR 1,500.00   OK
+   Usman Khan       PKR 1,500.00   OK
+   Kashif Iqbal     PKR 1,500.00   OK
+   Hamza Sheikh     PKR 1,500.00   OK
+   Zeeshan Malik    PKR 1,500.00   OK
+   Danish Farooq    PKR 1,500.00   OK
+   Saad Nadeem      PKR 2,000.00   OK  (+500 OVER)
+   Imran Qureshi    PKR 1,500.00   OK
+
+ STILL OWES — needs follow-up
+ --------------------------------------------------------
+   Waqar Younis     owes PKR 1,500.00
+   Naveed Akhtar    owes PKR 1,500.00
+   ----------------------------------------
+   Confirmed unpaid dues        : PKR   3,000.00
+
+ OVERPAYMENTS — refund or carry forward
+ --------------------------------------------------------
+   Saad Nadeem      PKR   500.00 over
+
+ UNMATCHED PAYMENTS — money in, owner unknown, follow up
+ --------------------------------------------------------
+   2026-05-13  '0300-1234567'  memo:'-'  PKR 1,500.00
+   ----------------------------------------
+   Unexplained money in account : PKR   1,500.00
+
+============================================================
+ RECONCILIATION SUMMARY
+============================================================
+   Matched to roster (capped)   : PKR  15,000.00
+   Still owed by members        : PKR   3,000.00
+   Unexplained deposits         : PKR   1,500.00
+   Overpayments                 : PKR     500.00
+   Check: matched + owed        : PKR  18,000.00  (should equal expected 18,000)
+============================================================

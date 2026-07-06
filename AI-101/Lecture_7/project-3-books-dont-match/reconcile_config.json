@@ -1,0 +1,31 @@
+{
+  "fund_name": "Gulshan Cricket Club — May 2026 Monthly Dues",
+  "dues_per_member": 1500,
+  "expected_total": 18000,
+  "hand_counted_confirmed": {
+    "amount": 15000,
+    "note": "I personally confirmed 10 members paid their PKR 1,500. This is my known baseline the script must reproduce."
+  },
+  "roster": [
+    "Ahmed Raza", "Bilal Ahmed", "Faizan Ali", "Usman Khan",
+    "Kashif Iqbal", "Hamza Sheikh", "Zeeshan Malik", "Danish Farooq",
+    "Saad Nadeem", "Imran Qureshi", "Waqar Younis", "Naveed Akhtar"
+  ],
+  "interpretation_rules": {
+    "alias_contains": {
+      "chintu": "Bilal Ahmed",
+      "guddu": "Faizan Ali",
+      "hamza": "Hamza Sheikh",
+      "saad": "Saad Nadeem",
+      "danish": "Danish Farooq",
+      "imran": "Imran Qureshi"
+    },
+    "number_contains": {
+      "4471": "Usman Khan"
+    },
+    "memo_means_dues": {
+      "Kashif Iqbal": ["eid mubarak"]
+    },
+    "note": "These rules are MY personal knowledge of who is who. 'Chintu' is Bilal's nickname; Usman never adds a memo and pays from the number ending 4471; Kashif wrote 'Eid Mubarak' but it is his dues."
+  }
+}
