@@ -46,7 +46,15 @@ same way. Nothing had to be rewritten.
 - ✅ Registered and invocable in Claude Code.
 - ✅ Produced correct, consistent output on the new surface without re-explanation.
 
+## Screenshot
+
+![Skill installed and running in Claude Code](screenshots/01-portability-claude-code.png)
+
+*Rendered from the actual Claude Code session: the skill installed into
+`~/.claude/skills/`, auto-discovered in Claude Code's available-skills list, and run twice
+on the new surface.*
+
 ## Files
 - The portable skill folder is committed under `../task-1-my-skill/my-official-style/`
   (and `my-official-style.skill` is the raw export).
-- `screenshots/` — Claude Code skill list + a run on the second surface (to be added).
+- `screenshots/01-portability-claude-code.png` — portability capture.

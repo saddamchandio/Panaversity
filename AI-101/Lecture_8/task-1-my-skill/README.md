@@ -90,6 +90,14 @@ capture the exact skeleton, courtesy idioms, and distribution rules. See
 
 The full captured run is in [`demo-run.md`](demo-run.md).
 
+## Screenshot
+
+![Skill invocation and the letter it produced](screenshots/01-skill-invocation-and-letter.png)
+
+*Rendered from the actual Claude Code session: `/my-official-style` triggering on command
+and the paste-ready REMINDER–I it produced (unverified reference numbers left as
+placeholders).*
+
 ## What worked / what didn't
 
 - **Worked:** consistent house style from a single sentence; the anti-fabrication rule is

@@ -57,7 +57,13 @@ was invented.
   (e.g. "G-4 to G-G" for "G-4 to G-6"); I confirmed the intended grade bands against the
   document before finalising. Always spot-check OCR'd figures.
 
+## Screenshot
+
+![One sentence to live Drive data to a house-style Notice](screenshots/01-skill-plus-connector.png)
+
+*Rendered from the actual Claude Code session: the one-sentence request, the
+connector→skill flow, and the finished Notice with the spot-check confirmation.*
+
 ## Files
 - `result-notice.md` — the formatted live result.
-- `screenshots/` — screenshot of the one-sentence run and output (to be added; private
-  details blurred).
+- `screenshots/01-skill-plus-connector.png` — the combined workflow capture.

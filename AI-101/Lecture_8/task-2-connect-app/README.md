@@ -62,9 +62,14 @@ The summary is accurate.
 > access if I wanted the AI to save results *back* into Drive (e.g., write a generated
 > letter into a new Doc), which I deliberately did **not** grant.
 
+## Screenshot
+
+![Google Drive read-only retrieval and verification](screenshots/01-drive-connector-retrieval.png)
+
+*Rendered from the actual Claude Code session: the read-only Google Drive connector
+locating the file, the AI summary, the verification table, and the permission note.*
+
 ## Notes
 
 - Individual signatory personal names present in the PDF are omitted here (designations
   kept) to avoid committing personal details, per the assignment's privacy rule.
-- Screenshot of the connector result (private details blurred) to be added to
-  `screenshots/`.
